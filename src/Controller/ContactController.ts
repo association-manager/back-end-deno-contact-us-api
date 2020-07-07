@@ -1,6 +1,8 @@
 import {IRequest, IResponse, IRouter} from "https://deno.land/x/snowlight/mod.ts";
 import { ContactInterface } from '../Interface/ContactInterface.ts';
 import {Redis} from "https://denopkg.com/keroxp/deno-redis/mod.ts";
+import axiod from "https://deno.land/x/axiod/mod.ts";
+
 
 export const contactController = (redisConnection: Redis, route: IRouter) => {
   route.post("/contact", async (req : IRequest, res : IResponse)=>{
@@ -39,7 +41,7 @@ export const contactController = (redisConnection: Redis, route: IRouter) => {
     return await res.json({"success" : result});  
   });
 
-  route.get("/contact/:id_us", async (req : IRequest, res : IResponse) => {
+  route.get("/send-email/:id_us", async (req : IRequest, res : IResponse) => {
     const idUs= req.params.id_us;
     let emailValidation = new RegExp(/^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+(?:[a-zA-Z]{2}|aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel)$/);
     if(!emailValidation.test(idUs)){
@@ -49,9 +51,14 @@ export const contactController = (redisConnection: Redis, route: IRouter) => {
     let contacts: any= []; 
     const listOfContactsAsso = await redisConnection.lrange(idUs,0,-1);
 
-  for(let i=0; i < listOfContactsAsso.length-1; i++)
-    contacts.push(await redisConnection.hgetall(listOfContactsAsso[i]).then(data=>data).catch(()=> new Error("donnée introuvable avec la clé demandée")));
+    for(let i=0; i < listOfContactsAsso.length-1; i++)
+      contacts.push(await redisConnection.hgetall(listOfContactsAsso[i]).then(data=>data).catch(()=> new Error("donnée introuvable avec la clé demandée")));
 
-    return await res.json({"contact" : contacts });
+    return await axiod
+      .post("/email-to-admin", {
+        email: contacts,
+      })
+      .then((response) => res.json({"success" : response }))
+      .catch((error) => res.json({"error" : error }))
   });
 }
