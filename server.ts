@@ -1,7 +1,7 @@
 import { ContactInterface } from './src/Interface/ContactInterface.ts';
 import {connect} from "https://denopkg.com/keroxp/deno-redis/mod.ts";
 //import * as expressive from "./deno-express-master/mod.ts";
-import snowlight, {Request, Response, IRouter} from "https://deno.land/x/snowlight/mod.ts";
+import snowlight, {IRequest, IResponse, IRouter} from "https://deno.land/x/snowlight/mod.ts";
 
 const redisConnection = await connect({
   hostname: "127.0.0.1",
@@ -17,7 +17,7 @@ const app = snowlight();
 app.use(expressive.bodyParser.json()); */
 app.use(app.urlencoded(), app.json());
 app.group("/am_api_contact_us", [] ,(route: IRouter) => {
-  route.post("/contact", async (req : Request, res : Response)=>{
+  route.post("/contact", async (req : IRequest, res : IResponse)=>{
 
     let contact: ContactInterface = req.body;
 
@@ -47,13 +47,13 @@ app.group("/am_api_contact_us", [] ,(route: IRouter) => {
     }
   });
 
-  route.get("/all",  async (req : Request, res : Response) => {
+  route.get("/all",  async (req : IRequest, res : IResponse) => {
 
     const result = await redisConnection.keys('*');
     return await res.json({"success" : result});  
   });
 
-  route.get("/contact/:id_us", async (req : Request, res : Response) => {
+  route.get("/contact/:id_us", async (req : IRequest, res : IResponse) => {
     const idUs= req.params.id_us;
     let emailValidation = new RegExp(/^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+(?:[a-zA-Z]{2}|aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel)$/);
     if(!emailValidation.test(idUs)){
