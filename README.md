@@ -4,3 +4,4 @@ Light api for manage contact for asking information about the website or an asso
 
 # run api
 deno run --allow-net --allow-read --allow-run --allow-env server.ts
+
