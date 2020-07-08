@@ -1,24 +1,29 @@
-import snowlight, {IRouter} from "https://deno.land/x/snowlight/mod.ts";
-import {connect} from "https://denopkg.com/keroxp/deno-redis/mod.ts";
-import {contactController} from './src/Controller/ContactController.ts'
+// Importing some console colors
+import {bold, yellow} from "https://deno.land/std@0.60.0/fmt/colors.ts";
+import {Application,  Context, Status} from "https://deno.land/x/oak/mod.ts";
+import contactController from './src/Controller/ContactController.ts'
 
-//import * as expressive from "./deno-express-master/mod.ts";
+const app = new Application();
 
-const redisConnection = await connect({
-  hostname: "127.0.0.1",
-  port: 6379})
+function notFound(context: Context) {
+  context.response.status = Status.NotFound;
+  context.response.body = JSON.stringify({"404 - Not Found" : `Path ${context.request.url} not found.`});
+}
 
-console.log(await redisConnection.echo('connection successful').then(echo=>echo).catch(err=>err));
+app.use();
 
-const port = 3000;
-//const app = new expressive.App();
-const app = snowlight();
+// Use the router
+app.use(contactController.routes());
+app.use(contactController.allowedMethods());
 
-/* app.use(expressive.simpleLog());
-app.use(expressive.bodyParser.json()); */
-app.use(app.urlencoded(), app.json());
-app.group("/am_api_contact_us", [] ,(route: IRouter) => {
-  contactController(redisConnection, route);
+// A basic 404 page
+app.use(notFound);
+
+app.addEventListener("listen", ({ hostname, port }) => {
+  console.log(
+    bold("Server started! 🔥 listening on ") + yellow(`${hostname}:${port}`),
+  );
 });
 
-app.listen(port, () => console.log("Server started! 🔥 on port : " + port));
+await app.listen({ hostname: "127.0.0.1", port: 3000 });
+console.log(bold("Finished."));
