@@ -3,6 +3,7 @@ import { ContactInterface } from '../Interface/ContactInterface.ts';
 import {connect} from "https://denopkg.com/keroxp/deno-redis/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 
+
 const redisConnection = await connect({
   hostname: "127.0.0.1",
   port: 6379})
