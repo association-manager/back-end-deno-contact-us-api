@@ -3,8 +3,13 @@ import { bold, yellow } from "https://deno.land/std@0.60.0/fmt/colors.ts";
 import { Application, Context, Status } from "https://deno.land/x/oak/mod.ts";
 // import { login } from "./src/Controller/authController.ts";
 import contactController from "./src/Controller/ContactController.ts";
+import * as flags from "https://deno.land/x/flags/mod.ts"
 
 const app = new Application();
+const DEFAULT_PORT = 3000
+const {args} = Deno;
+const argsPort = flags.parse(args).port;
+const port= argsPort? Number(argsPort) : DEFAULT_PORT;
 
 function notFound(context: Context) {
   context.response.status = Status.NotFound;
@@ -37,5 +42,5 @@ app.addEventListener("listen", ({ hostname, port }) => {
   );
 });
 
-await app.listen({ hostname: "127.0.0.1", port: 3000 });
+await app.listen({ hostname: "127.0.0.1", port: port });
 console.log(bold("Finished."));
