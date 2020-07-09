@@ -16,7 +16,7 @@ function notFound(context: Context) {
 //authorization middleware
 /* app.use(async (ctx, next)=>{
   const authorization = ctx.request.headers.get('Authorization');
-  const tokenValid = await login(authorization?.replace('Bearer', ''))
+  const tokenValid = await login(authorization?.replace('Bearer', '')
   
   if(tokenValid){
     await next();
