@@ -3,7 +3,7 @@ import { bold, yellow } from "https://deno.land/std@0.60.0/fmt/colors.ts";
 import { Application, Context, Status } from "https://deno.land/x/oak/mod.ts";
 // import { login } from "./src/Controller/authController.ts";
 import contactController from "./src/Controller/ContactController.ts";
-import * as flags from "https://deno.land/x/flags/mod.ts"
+import * as flags from "https://deno.land/std/flags/mod.ts"
 
 const app = new Application();
 const DEFAULT_PORT = 3000
