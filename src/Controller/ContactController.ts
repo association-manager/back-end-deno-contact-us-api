@@ -21,37 +21,39 @@ export const contact = async (context: RouterContext) => {
   if (!contact.contactName) {
     context.response.status = 400;
     context.response.body = JSON.stringify(
-      { "error": "Un des champs est manquant" },
+      { "error": "Un des champs est manquant" }
     );
   }
-  //must be an association's email
-  const idUs = contact.idUs;
-  contact.key = contact.email;
+  else {
+    //must be an association's email
+    const idUs = contact.idUs;
+    contact.key = contact.email;
 
-  //redis commands with pipeline
-  const redis = redisConnection.pipeline();
-  await redis.lpush(idUs, contact.key);
-  await redis.hset(
-    contact.key,
-    "contact name",
-    contact.contactName,
-    "first name",
-    contact.firstName,
-    "email",
-    contact.email,
-    "message",
-    contact.message,
-    "idUs",
-    contact.idUs,
-  );
-  await redis.expire(contact.key, 48 * 3600);
-  const result = await redis.flush().then(() => 1).catch((err) => err);
-  if (result == 1) {
-    context.response.body = await JSON.stringify({ success: true, contact });
-  } else {
-    context.response.status = 409;
-    context.response.body = await result;
-  }
+    //redis commands with pipeline
+    const redis = redisConnection.pipeline();
+    await redis.lpush(idUs, contact.key);
+    await redis.hset(
+      contact.key,
+      "contact name",
+      contact.contactName,
+      "first name",
+      contact.firstName,
+      "email",
+      contact.email,
+      "message",
+      contact.message,
+      "idUs",
+      contact.idUs,
+    );
+    await redis.expire(contact.key, 48 * 3600);
+    const result = await redis.flush().then(() => 1).catch((err) => err);
+    if (result == 1) {
+      context.response.body = await JSON.stringify({ success: true, contact });
+    } else {
+      context.response.status = 409;
+      context.response.body = await result;
+    }
+}
 };
 
 export const allContact = async (context: RouterContext) => {

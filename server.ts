@@ -29,6 +29,11 @@ function notFound(context: Context) {
   }
   ctx.response.body = JSON.stringify({error : "Not authotized"})
 }) */
+app.use(async (ctx, next)=>{
+  ctx.response.headers.set("content-type","JSON")
+  await next();
+  return
+})
 
 app.use(contactController.routes());
 app.use(contactController.allowedMethods());
